@@ -5,12 +5,13 @@ Aspic is an update protocol designed to facilitate automatic updates. It describ
 This operator helps you declare projects and their install/update channel. It also acts as API endpoints which you can use with your CI to continuously update informations about new release version of your projects and their components.
 
 
-_This project is at an alpha (PoC) phase, which I work on my spare time to discover and experiment the various technologies & languages_
+> :warning: **This project is still in an early phase. Use it on your own risk but make sure to create issues for issues you encounter.**
 
 ## Todo
 
 - github workflow to create the docker image
-- helm chart
+- ~~helm chart~~
+- ~~development automations (Justfile, kind, ...)~~
 - github workflow to publish the site that host the helm charts releases
 - code the operator ;-)
 - provide examples and deploy a live demo somewhere
@@ -23,21 +24,32 @@ Requirements:
 - [Just](https://github.com/casey/just)
 - docker + [Kind](https://github.com/kubernetes-sigs/kind)
 - Python3 + [Poetry](https://python-poetry.org/)
-- (optional) nix package manager if you want to use `shell.nix`
+- ...
+
+Or simply use [Nix package manager](https://nixos.org/download.html#download-nix):
+
+- type: `nix-shell` , and you get EVRYTHNG !
+
+Discover:
+
+```
+just start
+just deploy-example
+```
 
 Start coding:
 
 ```
 just create-k8s
 just install-crds
-mkvirtualenv aspic
-just setup
+
+just libs-install
 just run
 just deploy-example
 
 just delete-example
 just buildx
-just delete-k8s
+just destroy
 ```
 
 ## Installation
