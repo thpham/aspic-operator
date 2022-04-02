@@ -1,0 +1,6 @@
+apiVersion: core.aspic.io/v1beta1
+kind: Project
+metadata:
+  name: blairwitch
+spec:
+  channel: stable
