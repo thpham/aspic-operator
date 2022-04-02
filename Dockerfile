@@ -101,4 +101,4 @@ RUN --mount=type=cache,target=/root/.cache \
 WORKDIR /home/aspic
 USER aspic
 COPY --chown=aspic:aspic aspic/*.py ./aspic/
-CMD ["kopf", "run", "--all-namespaces", "aspic/main.py", "--verbose"]
+CMD ["python", "aspic/main.py", "service", "--k8s"]

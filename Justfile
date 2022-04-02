@@ -14,7 +14,7 @@ setup:
 
 alias r := run
 run:
-  kopf run --all-namespaces aspic/main.py --verbose
+  python aspic/main.py service --k8s
 
 deploy-example:
   kubectl apply -f examples/simple-project.yaml
