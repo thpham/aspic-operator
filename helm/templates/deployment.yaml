@@ -32,23 +32,18 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
           {{- if .Values.command }}
+          command:
           {{- range .Values.command }}
             - {{ . }}
           {{- end }}
-          {{- else }}
-            - kopf
-            - run
-          {{- end }}
-          args:
           {{- if .Values.args }}
+          args:
           {{- range .Values.args }}
             - {{ . }}
           {{- end }}
           {{- end }}
-            - --all-namespaces
-            - main.py
+          {{- end }}
           env:
             {{- range $name, $value := .Values.env }}
             - name: {{ $name | quote }}
@@ -60,11 +55,11 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
+              path: /health
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /health
               port: http
           terminationMessagePolicy: FallbackToLogsOnError
           securityContext:

@@ -1,0 +1,89 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: update-streams.config.aspic.io
+  labels:
+    app: aspic
+    aspic.io/crd-install: "true"
+    component: update-streams.config.aspic.io-crd
+spec:
+  scope: Namespaced
+  group: config.aspic.io
+  names:
+    kind: UpdateStream
+    listKind: UpdateStreamList
+    singular: update-stream
+    plural: update-streams
+    shortNames:
+      - us
+    categories:
+      - aspic
+  versions:
+    - name: v1beta1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Product
+          description: The name of the product
+          jsonPath: .spec.product.name
+          type: string
+        - name: Channel
+          description: The update channel name
+          jsonPath: .spec.channel.name
+          type: string
+        - name: Version
+          description: The current version of the given channel
+          jsonPath: .status.conditions[?(@.type=="Version")].status
+          type: string
+        - name: Status
+          description: The state of the update stream
+          jsonPath: .status.conditions[?(@.type=="Ready")].status
+          type: string
+        - name: Warnings
+          description: Warnings related to the custom resource
+          jsonPath: .status.conditions[?(@.type=="Warning")].status
+          type: string
+      schema:
+        openAPIV3Schema:
+          type: object
+          x-kubernetes-preserve-unknown-fields: true
+          properties:
+            spec:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+              properties:
+                customerId:
+                  description: The customer unique identifier
+                  type: integer
+                product:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                  properties:
+                    name:
+                      description: The name of the target project/namespace
+                      type: string
+                    license:
+                      description: The name of the secret containing the license
+                      type: string
+                channel:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                  properties:
+                    name:
+                      description: The update channel name
+                      type: string
+                      enum:
+                        - stable
+                        - candidate
+                        - develop
+                    apiEndpoint:
+                      description: The base URI of aspic-operator API services
+                      type: string
+                    refreshRate:
+                      description: The polling refresh rate to fetch new graph data
+                      type: integer
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true

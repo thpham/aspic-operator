@@ -18,10 +18,10 @@ import yaml
 def _startup(settings: kopf.OperatorSettings, logger: kopf._core.actions.execution.Logger, **_) -> None:
   settings.posting.level = logging.getLevelName(os.environ.get("LOG_LEVEL", "INFO"))
   settings.peering.standalone = True
-  settings.persistence.finalizer = 'core.aspic.io/finalizer'
-  settings.persistence.progress_storage = kopf.AnnotationsProgressStorage(prefix='core.aspic.io')
+  settings.persistence.finalizer = 'config.aspic.io/finalizer'
+  settings.persistence.progress_storage = kopf.AnnotationsProgressStorage(prefix='config.aspic.io')
   settings.persistence.diffbase_storage = kopf.AnnotationsDiffBaseStorage(
-    prefix='core.aspic.io',
+    prefix='config.aspic.io',
     key='last-handled-configuration',
   )
   settings.networking.error_backoffs = [10, 20, 30]
@@ -33,7 +33,7 @@ def _startup(settings: kopf.OperatorSettings, logger: kopf._core.actions.executi
 def login(**kwargs):
   token = '/var/run/secrets/kubernetes.io/serviceaccount/token'
   if os.path.isfile(token):
-    logging.debug("found serviceaccount token: login via pykube in kubernetes")
+    logging.debug("found serviceaccount token: login via service account in kubernetes")
     return kopf.login_with_service_account(**kwargs)
   logging.debug("login via client")
   return kopf.login_via_client(**kwargs)
@@ -48,11 +48,11 @@ class CustomContext:
     return self
 
 
-@kopf.on.create("core.aspic.io", "v1beta1", "projects")
+@kopf.on.create("config.aspic.io", "v1beta1", "update-streams")
 def create_project(memo: CustomContext, logger, **kwargs):
   logger.info(memo.create_tpl.format(**kwargs))
 
-@kopf.on.delete("core.aspic.io", "v1beta1", "projects")
+@kopf.on.delete("config.aspic.io", "v1beta1", "update-streams")
 def delete_project(memo: CustomContext, logger, **kwargs):
   logger.info(memo.delete_tpl.format(**kwargs))
 
@@ -79,8 +79,8 @@ def run_kopf(namespace, stop_flag: threading.Event):
         ready_flag=ready_flag,
         stop_flag=stop_flag,
         memo=kopf.Memo(
-          create_tpl="Create: {name} project.",
-          delete_tpl="Delete: {name} project.",
+          create_tpl="Create: {name} update-stream.",
+          delete_tpl="Delete: {name} update-stream.",
         ),
       ))
 

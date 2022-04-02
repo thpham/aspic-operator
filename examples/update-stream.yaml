@@ -1,0 +1,16 @@
+apiVersion: config.aspic.io/v1beta1
+kind: UpdateStream
+metadata:
+  name: dev-stream-1
+  namespace: default
+  annotations:
+    config.aspic.io/updater-validation: "manual" # "auto"
+spec:
+  customerId: 1234567890
+  product:
+    name: manhattan
+    license: manhattan-secret
+  channel:
+    name: develop
+    apiEndpoint: https://localhost:8080/apis/v1 # (optional -> development)
+    refreshRate: 60 # (optional) in seconds - default: 3600

@@ -13,9 +13,17 @@ rules:
     verbs:
       - create
   - apiGroups:
-      - core.aspic.io
+      - ""
     resources:
-      - projects
+      - namespaces
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - config.aspic.io
+    resources:
+      - update-streams
     verbs:
       - get
       - list
