@@ -1,5 +1,3 @@
-set shell := ["zsh", "-cu"]
-
 home_dir         := env_var('HOME')
 operator_version := "latest"
 operator_image   := "tpham/aspic-operator"+":"+operator_version
