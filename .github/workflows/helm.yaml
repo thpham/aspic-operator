@@ -1,0 +1,43 @@
+name: Publish Helm Chart
+
+on:
+  push:
+    paths:
+      - 'helm/**'
+
+jobs:
+  publish_helm_chart:
+    runs-on: ubuntu-latest
+    name: Package and push Helm chart
+    steps:
+      - name: Checkout aspic-operator
+        uses: actions/checkout@v2
+        with:
+          path: aspic-operator
+      - name: Checkout Helm chart index
+        uses: actions/checkout@v2
+        with:
+          path: helm-chart-index
+          ref: helm-chart-index
+      - name: Configure Git
+        working-directory: helm-chart-index
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.8.1
+      - name: Package Helm chart
+        working-directory: helm-chart-index/helm
+        run: helm package ../../aspic-operator/helm
+      - name: Update repo index
+        working-directory: helm-chart-index/helm
+        run: helm repo index . --merge index.yaml --url https://thpham.github.io/aspic-operator/helm
+      - name: Release Helm chart
+        if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+        working-directory: helm-chart-index
+        run: |
+          git add helm
+          git commit -m "Index update on $(date +'%Y-%m-%d %H:%M:%S')"
+          git push origin helm-chart-index

@@ -12,7 +12,7 @@ This operator helps you declare projects and their install/update channel. It al
 - github workflow to create the docker image
 - ~~helm chart~~
 - ~~development automations (Justfile, kind, ...)~~
-- github workflow to publish the site that host the helm charts releases
+- ~~github workflow to publish the site that host the helm charts releases~~
 - code the operator ;-)
 - provide examples and deploy a live demo somewhere
 
@@ -55,6 +55,6 @@ just destroy
 ## Installation
 
 ```
-helm repo add aspic-operator https://thpham.github.io/aspic-operator
-helm upgrade --install --create-namespace -f helm/values.yaml aspic aspic-operator
+helm repo add aspic-operator https://thpham.github.io/aspic-operator/helm
+helm -n aspic-operator upgrade --install --create-namespace -f <your_values.yaml> aspic-opertor aspic-operator
 ```
