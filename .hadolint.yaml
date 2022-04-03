@@ -2,3 +2,6 @@
 ignored:
   - DL3008 # pin version: https://github.com/hadolint/hadolint/wiki/DL3008
   - DL3003 # use workdir: https://github.com/hadolint/hadolint/wiki/DL3003
+  - DL3042
+  - DL4006
+  - DL3013

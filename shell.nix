@@ -14,12 +14,8 @@ let
   inputs = basePackages;
 
   shellHooks = ''
-    VIRTUALENVS="$HOME/.virtualenvs"
-    mkdir -p $VIRTUALENVS
     virtualenv -p $(which python) .venv
     source .venv/bin/activate
-
-    just libs-install
   '';
 
 in mkShell {

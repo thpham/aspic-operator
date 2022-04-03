@@ -9,7 +9,7 @@ This operator helps you declare projects and their install/update channel. It al
 
 ## Todo
 
-- github workflow to create the docker image
+- ~~github workflow to create the docker image~~
 - ~~helm chart~~
 - ~~development automations (Justfile, kind, ...)~~
 - ~~github workflow to publish the site that host the helm charts releases~~
@@ -58,3 +58,5 @@ just destroy
 helm repo add aspic-operator https://thpham.github.io/aspic-operator/helm
 helm -n aspic-operator upgrade --install --create-namespace -f <your_values.yaml> aspic-opertor aspic-operator
 ```
+
+The docker image produce by the CI/CD is published on [Docker Hub](https://hub.docker.com/repository/docker/tpham/aspic-operator).
