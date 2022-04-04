@@ -12,5 +12,5 @@ spec:
     license: manhattan-secret
   channel:
     name: develop
-    apiEndpoint: https://localhost:8080/apis/v1 # (optional -> development)
+    apiEndpoint: https://localhost:8080/api/v1 # (optional -> development)
     refreshRate: 60 # (optional) in seconds - default: 3600
