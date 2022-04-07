@@ -6,7 +6,8 @@ authors = ["Thomas Pham <thomas.pham@ithings.ch>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-kopf = {extras = ["full-auth"], version = "1.35.3"}
+kopf = {extras = ["dev","full-auth"], version = "1.35.3"}
+libcrypto = "^"
 click = "^8.1.2"
 PyYAML = "^6.0"
 pykube = "^0.15.0"

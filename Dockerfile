@@ -101,4 +101,4 @@ RUN --mount=type=cache,target=/root/.cache \
 WORKDIR /home/aspic/aspic-operator
 USER aspic
 COPY --chown=aspic:aspic aspic/ .
-CMD ["python", "main.py", "service", "--k8s"]
+CMD ["python", "main.py", "operator"]

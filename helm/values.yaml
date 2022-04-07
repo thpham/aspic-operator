@@ -17,11 +17,13 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-command:
-# - kopf
-# - run
-args:
-# - handlers.py
+api:
+  enabled: true
+
+watchNamespaces: []
+#- default
+watchAnyNamespace: false
+
 env:
   LOG_LEVEL: WARN
 

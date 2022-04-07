@@ -2,7 +2,7 @@ apiVersion: config.aspic.io/v1beta1
 kind: UpdateStream
 metadata:
   name: dev-stream-1
-  namespace: default
+  namespace: aspic-operator
   annotations:
     config.aspic.io/updater-validation: "manual" # "auto"
 spec:

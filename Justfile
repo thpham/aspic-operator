@@ -41,7 +41,10 @@ libs-update:
 
 alias r := run
 run:
-  python aspic/main.py service --k8s
+  #!/usr/bin/env bash
+  kubectl create ns aspic-operator
+  export ASPIC_OPERATOR_WATCH_NAMESPACES=default,aspic-operator
+  python aspic/main.py operator --api
 
 load-images: buildx
   #!/usr/bin/env bash

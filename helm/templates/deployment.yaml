@@ -32,19 +32,29 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- if .Values.command }}
           command:
-          {{- range .Values.command }}
-            - {{ . }}
-          {{- end }}
-          {{- if .Values.args }}
+            - python
+            - main.py
           args:
-          {{- range .Values.args }}
-            - {{ . }}
-          {{- end }}
-          {{- end }}
-          {{- end }}
+            - operator
+            {{- if .Values.api.enabled }}
+            - --api
+            {{- end }}
           env:
+            - name: ASPIC_OPERATOR_WATCH_NAMESPACES
+              {{- if .Values.watchAnyNamespace }}
+              value: "*"
+              {{- else }}
+              {{- if .Values.watchNamespaces -}}
+              {{- $ns := .Values.watchNamespaces -}}
+              {{- $ns := append $ns .Release.Namespace }}
+              value: "{{ join "," $ns }}"
+              {{- else }}
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+              {{- end }}
+              {{- end }}
             {{- range $name, $value := .Values.env }}
             - name: {{ $name | quote }}
               value: {{ $value | quote }}
@@ -53,14 +63,25 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
+            - name: operator
+              containerPort: 8181
+              protocol: TCP
           livenessProbe:
             httpGet:
               path: /health
+              {{- if .Values.api.enabled }}
               port: http
+              {{- else }}
+              port: operator
+              {{- end }}
           readinessProbe:
             httpGet:
               path: /health
+              {{- if .Values.api.enabled }}
               port: http
+              {{- else }}
+              port: operator
+              {{- end }}
           terminationMessagePolicy: FallbackToLogsOnError
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
