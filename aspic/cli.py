@@ -36,7 +36,7 @@ def main() -> None:
 @click.option(
   "--api", is_flag=True, default=False, help="Start API server"
 )
-@click.option("--watch-namespaces", help="Kubernetes namespaces to watch (comma separated).")
+@click.option("--watch-namespaces", default="default", help="Kubernetes namespaces to watch (comma separated).")
 def operator(
   api: bool, watch_namespaces: Optional[str]
 ) -> None:

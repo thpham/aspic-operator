@@ -1,4 +1,4 @@
-FROM python:3.9-slim as base-all
+FROM python:3.8-slim as base-all
 LABEL maintainer "info@aspic.io"
 
 # add user

@@ -8,9 +8,9 @@ default:
 system-info:
   @echo "This is an {{arch()}} machine running on {{os()}}."
 
-start: system-info create-k8s
+start: system-info create-k8s install-cluster-addons
   @echo "Middle steps..."
-  just load-images helm-install
+  just load-images remove-devs-additions helm-install
 
 create-k8s:
   #!/usr/bin/env bash
@@ -30,6 +30,12 @@ create-k8s:
     echo  
   done
 
+install-cluster-addons:
+  kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.7.2/cert-manager.yaml
+  #while [[ $(kubectl get pods cert-manager-webhook -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
+  #  echo "waiting for pod" && sleep 1;
+  #done
+
 install-crds:
   kubectl apply -f helm//templates/crd-*.yaml
 
@@ -40,11 +46,11 @@ libs-update:
   poetry update
 
 alias r := run
-run:
+run: install-crds
   #!/usr/bin/env bash
   kubectl create ns aspic-operator
   export ASPIC_OPERATOR_WATCH_NAMESPACES=default,aspic-operator
-  python aspic/main.py operator --api
+  PROFILE=dev python aspic/main.py operator --api
 
 load-images: buildx
   #!/usr/bin/env bash
@@ -55,6 +61,12 @@ helm-install:
 
 helm-uninstall:
   helm -n aspic-operator delete aspic-operator
+
+remove-devs-additions:
+  #!/usr/bin/env bash
+  kubectl delete -f helm//templates/crd-*.yaml || true
+  kubectl delete MutatingWebhookConfiguration aspic-operator || true
+  kubectl delete ValidatingWebhookConfiguration aspic-operator || true
 
 deploy-example:
   kubectl apply -f examples/update-stream.yaml

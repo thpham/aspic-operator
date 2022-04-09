@@ -26,6 +26,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "aspic-operator.serviceAccountName" . }}
+      automountServiceAccountToken: true
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -60,17 +61,20 @@ spec:
               value: {{ $value | quote }}
             {{- end }}
           ports:
-            - name: http
+            - name: api
               containerPort: 8080
               protocol: TCP
             - name: operator
               containerPort: 8181
               protocol: TCP
+            - name: webhook
+              containerPort: 8282
+              protocol: TCP
           livenessProbe:
             httpGet:
               path: /health
               {{- if .Values.api.enabled }}
-              port: http
+              port: api
               {{- else }}
               port: operator
               {{- end }}
@@ -78,7 +82,7 @@ spec:
             httpGet:
               path: /health
               {{- if .Values.api.enabled }}
-              port: http
+              port: api
               {{- else }}
               port: operator
               {{- end }}
@@ -87,6 +91,11 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.certmanager.enabled }}
+          volumeMounts:
+            - name: certs
+              mountPath: /var/aspic/certs
+          {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -98,4 +107,10 @@ spec:
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.certmanager.enabled }}
+      volumes:
+        - name: certs
+          secret:
+            secretName: operator-webhook-cert
       {{- end }}

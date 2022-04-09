@@ -2,12 +2,12 @@
 with (import <nixpkgs> {});
 let
 
-  python-with-my-packages = python39.withPackages (ps: [
+  python-with-my-packages = python38.withPackages (ps: [
       ps.virtualenv
     ]);
 
   basePackages = [
-    kind openshift kubernetes-helm 
+    kind kubectl kubernetes-helm
     just jq hadolint poetry python-with-my-packages
   ];
 

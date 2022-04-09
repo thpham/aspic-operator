@@ -18,14 +18,20 @@ nameOverride: ""
 fullnameOverride: ""
 
 api:
-  enabled: true
+  enabled: false
+  service:
+    port: 8080
 
 watchNamespaces: []
 #- default
 watchAnyNamespace: false
 
 env:
+  PROFILE: prod # dev
   LOG_LEVEL: WARN
+
+certmanager:
+  enabled: true
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -51,7 +57,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 80
+  port: 8282
 
 ingress:
   enabled: false
