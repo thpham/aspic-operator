@@ -3,13 +3,13 @@ entries:
   aspic-operator:
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2022-04-03T10:02:38.159970601Z"
+    created: "2022-04-11T18:04:53.592640964Z"
     description: Kuberenetes Operator for automatic software delivery based on UpdateStreams
       and Channels
-    digest: a6db87fa5ac106fd379930ed6943cc767061a693590ab4fd24f7a95cc9c50002
+    digest: d81b3aab4f3bdb643f47647bb57b12af5665024d52112392deb06da6654e1bc6
     name: aspic-operator
     type: application
     urls:
     - https://thpham.github.io/aspic-operator/helm/aspic-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2022-04-03T10:02:38.159001201Z"
+generated: "2022-04-11T18:04:53.590494377Z"
