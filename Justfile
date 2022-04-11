@@ -31,10 +31,14 @@ create-k8s:
   done
 
 install-cluster-addons:
-  kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.7.2/cert-manager.yaml
-  #while [[ $(kubectl get pods cert-manager-webhook -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
-  #  echo "waiting for pod" && sleep 1;
-  #done
+  helm repo add jetstack https://charts.jetstack.io
+  helm repo update
+  helm upgrade --install \
+  cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --version v1.7.2 \
+  --set installCRDs=true
 
 install-crds:
   kubectl apply -f helm//templates/crd-*.yaml
