@@ -1,4 +1,4 @@
-FROM python:3.9-slim as base-all
+FROM python:3.8-slim as base-all
 LABEL maintainer "info@aspic.io"
 
 # add user
@@ -98,7 +98,7 @@ RUN --mount=type=cache,target=/root/.cache \
     --mount=type=bind,from=poetry,source=/tmp,target=/poetry \
     python3 -m pip install --disable-pip-version-check --requirement=/poetry/requirements.txt
 
-WORKDIR /home/aspic
+WORKDIR /home/aspic/aspic-operator
 USER aspic
-COPY --chown=aspic:aspic aspic/*.py ./aspic/
-CMD ["python", "aspic/main.py", "service", "--k8s"]
+COPY --chown=aspic:aspic aspic/ .
+CMD ["python", "main.py", "operator"]

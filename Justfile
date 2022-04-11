@@ -8,9 +8,9 @@ default:
 system-info:
   @echo "This is an {{arch()}} machine running on {{os()}}."
 
-start: system-info create-k8s
+start: system-info create-k8s install-cluster-addons
   @echo "Middle steps..."
-  just load-images helm-install
+  just load-images remove-devs-additions helm-install
 
 create-k8s:
   #!/usr/bin/env bash
@@ -30,6 +30,16 @@ create-k8s:
     echo  
   done
 
+install-cluster-addons:
+  helm repo add jetstack https://charts.jetstack.io
+  helm repo update
+  helm upgrade --install \
+  cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --version v1.7.2 \
+  --set installCRDs=true
+
 install-crds:
   kubectl apply -f helm//templates/crd-*.yaml
 
@@ -40,8 +50,11 @@ libs-update:
   poetry update
 
 alias r := run
-run:
-  python aspic/main.py service --k8s
+run: install-crds
+  #!/usr/bin/env bash
+  kubectl create ns aspic-operator
+  export ASPIC_OPERATOR_WATCH_NAMESPACES=default,aspic-operator
+  PROFILE=dev python aspic/main.py operator --api
 
 load-images: buildx
   #!/usr/bin/env bash
@@ -52,6 +65,12 @@ helm-install:
 
 helm-uninstall:
   helm -n aspic-operator delete aspic-operator
+
+remove-devs-additions:
+  #!/usr/bin/env bash
+  kubectl delete -f helm//templates/crd-*.yaml || true
+  kubectl delete MutatingWebhookConfiguration aspic-operator || true
+  kubectl delete ValidatingWebhookConfiguration aspic-operator || true
 
 deploy-example:
   kubectl apply -f examples/update-stream.yaml
@@ -65,6 +84,24 @@ buildx:
 
 destroy:
   kind delete cluster --name aspic
+
+e2e:
+  #!/usr/bin/env bash
+  echo "current-context:" $(kubectl config current-context)
+  kubectl cluster-info
+  count=0
+  while [[ $(kubectl -n aspic-operator get pods -l 'app.kubernetes.io/name'=aspic-operator -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
+    echo "Waiting for aspic-operator pod ready..." && sleep 1;
+    ((count++))
+    if [[ "$count" == '5' ]]; then
+      echo "Timeout... "
+      echo "Get logs:"
+      kubectl logs -n aspic-operator deploy/aspic-operator --all-containers=true --timestamps --tail=-1
+      exit 1
+    fi
+  done
+  echo
+  echo "TODO python E2E test"
 
 testing:
   {{justfile_directory()}}/scripts/testing.sh

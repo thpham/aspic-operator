@@ -53,12 +53,7 @@ jobs:
         env:
           ASPIC_API_KEY: ${{ secrets.ASPIC_API_KEY }}
         run: |
-          nix-shell
-          echo "current-context:" $(kubectl config current-context)
-          kubectl cluster-info
-          kubectl get pods -n aspic-operator
-          echo
-          echo "TODO python E2E test"
+          nix-shell --run "just e2e"
 
       - uses: nelonoel/branch-name@v1.0.1
       - name: Prepare

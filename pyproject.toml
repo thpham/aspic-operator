@@ -5,12 +5,13 @@ description = ""
 authors = ["Thomas Pham <thomas.pham@ithings.ch>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
-kopf = {extras = ["full-auth"], version = "1.35.3"}
+python = "3.8"
+kopf = {extras = ["dev","full-auth"], version = "1.35.4"}
 click = "^8.1.2"
 PyYAML = "^6.0"
-pykube = "^0.15.0"
+pykube-ng = "^22.1.0"
 fastapi = "^0.75.1"
+pydantic = "^1.9"
 uvicorn = {extras = ["standard"], version = "^0.17.6"}
 
 [tool.poetry.dev-dependencies]
