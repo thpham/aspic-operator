@@ -1,0 +1,12 @@
+{{- if and (not .Values.certmanager.enabled) (not .Values.openshift.enabled) }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: operator-webhook-cert
+  labels:
+    {{- include "aspic-operator.labels" . | nindent 4 }}
+data:
+  ca.crt: Y2hhbmdlbWUK
+  tls.crt: Y2hhbmdlbWUK
+  tls.key: Y2hhbmdlbWUK
+{{- end }}

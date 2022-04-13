@@ -11,7 +11,7 @@ image:
   repository: tpham/aspic-operator
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  tag: "main"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -32,6 +32,9 @@ env:
 
 certmanager:
   enabled: true
+
+openshift:
+  enabled: false
 
 serviceAccount:
   # Specifies whether a service account should be created

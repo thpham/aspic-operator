@@ -30,6 +30,12 @@ create-k8s:
     echo  
   done
 
+create-microshift:
+  #!/usr/bin/env bash
+  docker pull quay.io/microshift/microshift-aio:latest
+  docker run -d --rm --name microshift --privileged -p 6443:6443 -v microshift-data:/var/lib quay.io/microshift/microshift-aio:latest || true
+  docker cp microshift:/var/lib/microshift/resources/kubeadmin/kubeconfig $HOME/.kube/config
+
 install-cluster-addons:
   helm repo add jetstack https://charts.jetstack.io
   helm repo update
