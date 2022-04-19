@@ -66,8 +66,9 @@ load-images: buildx
   #!/usr/bin/env bash
   kind --name aspic load docker-image {{operator_image}}
 
+# install local helm chart with latest image built locally
 helm-install:
-  helm -n aspic-operator upgrade --install --create-namespace -f helm/values.yaml aspic-operator ./helm
+  helm -n aspic-operator upgrade --install --create-namespace -f helm/values.yaml --set image.tag=latest aspic-operator ./helm
 
 helm-uninstall:
   helm -n aspic-operator delete aspic-operator

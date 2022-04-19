@@ -63,16 +63,14 @@ jobs:
           echo ::set-output name=tag::${TAG}
 
       # :latest is always a tag of the current branch
-      - name: Use Docker image built before E2E tests
-        run: docker tag tpham/aspic-operator:latest tpham/aspic-operator:${{ steps.prep.outputs.tag }}
-
       - name: Push Docker image for branch
         if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
-        run: docker push tpham/aspic-operator:${{ steps.prep.outputs.tag }}
+        run: |
+          docker tag tpham/aspic-operator:latest tpham/aspic-operator:${{ steps.prep.outputs.tag }}
+          docker push tpham/aspic-operator:${{ steps.prep.outputs.tag }}
 
       - name: Push Docker image for tag
         if: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push' }}
         run: |
           docker tag tpham/aspic-operator:latest tpham/aspic-operator:${GITHUB_REF##*/}
-          docker push tpham/aspic-operator:latest
           docker push tpham/aspic-operator:${GITHUB_REF##*/}
