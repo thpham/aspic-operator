@@ -68,7 +68,13 @@ load-images: buildx
 
 # install local helm chart with latest image built locally
 helm-install:
-  helm -n aspic-operator upgrade --install --create-namespace -f helm/values.yaml --set image.tag=latest aspic-operator ./helm
+  helm -n aspic-operator upgrade --install --create-namespace \
+    -f helm/values.yaml \
+    --set image.tag=latest \
+    --set api.enabled=True \
+    --set ingress.enabled=True \
+    --set ingress.hosts[0].host=aspic-operator.127.0.0.1.nip.io \
+    aspic-operator ./helm
 
 helm-uninstall:
   helm -n aspic-operator delete aspic-operator
@@ -109,6 +115,8 @@ e2e:
   done
   echo
   echo "TODO python E2E test"
+  # Example to call aspic-operator API
+  curl http://aspic-operator.127.0.0.1.nip.io/health
 
 testing:
   {{justfile_directory()}}/scripts/testing.sh

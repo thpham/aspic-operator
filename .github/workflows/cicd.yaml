@@ -45,7 +45,7 @@ jobs:
           username: tpham
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Setup Kind cluster and Deploy Helm Chart
+      - name: Setup K3D cluster and Deploy Helm Chart
         run: |
           nix-shell --run "just start"
 
