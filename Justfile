@@ -99,7 +99,7 @@ e2e:
   while [[ $(kubectl -n aspic-operator get pods -l 'app.kubernetes.io/name'=aspic-operator -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
     echo "Waiting for aspic-operator pod ready..." && sleep 1;
     ((count++))
-    if [[ "$count" == '5' ]]; then
+    if [[ "$count" == '30' ]]; then
       echo "Timeout... "
       echo "Get logs:"
       kubectl logs -n aspic-operator deploy/aspic-operator --all-containers=true --timestamps --tail=-1
