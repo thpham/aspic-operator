@@ -30,6 +30,12 @@ create-k8s:
     echo  
   done
 
+create-microshift:
+  #!/usr/bin/env bash
+  docker pull quay.io/microshift/microshift-aio:latest
+  docker run -d --rm --name microshift --privileged -p 6443:6443 -v microshift-data:/var/lib quay.io/microshift/microshift-aio:latest || true
+  docker cp microshift:/var/lib/microshift/resources/kubeadmin/kubeconfig $HOME/.kube/config
+
 install-cluster-addons:
   helm repo add jetstack https://charts.jetstack.io
   helm repo update
@@ -60,8 +66,9 @@ load-images: buildx
   #!/usr/bin/env bash
   kind --name aspic load docker-image {{operator_image}}
 
+# install local helm chart with latest image built locally
 helm-install:
-  helm -n aspic-operator upgrade --install --create-namespace -f helm/values.yaml aspic-operator ./helm
+  helm -n aspic-operator upgrade --install --create-namespace -f helm/values.yaml --set image.tag=latest aspic-operator ./helm
 
 helm-uninstall:
   helm -n aspic-operator delete aspic-operator
@@ -93,7 +100,7 @@ e2e:
   while [[ $(kubectl -n aspic-operator get pods -l 'app.kubernetes.io/name'=aspic-operator -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
     echo "Waiting for aspic-operator pod ready..." && sleep 1;
     ((count++))
-    if [[ "$count" == '5' ]]; then
+    if [[ "$count" == '30' ]]; then
       echo "Timeout... "
       echo "Get logs:"
       kubectl logs -n aspic-operator deploy/aspic-operator --all-containers=true --timestamps --tail=-1

@@ -91,11 +91,10 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if .Values.certmanager.enabled }}
           volumeMounts:
             - name: certs
               mountPath: /var/aspic/certs
-          {{- end }}
+              readOnly: true
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -108,8 +107,24 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.certmanager.enabled }}
       volumes:
+      {{- if .Values.openshift.enabled }}
+        - name: certs
+          projected:
+            sources:
+              - configMap:
+                  name: openshift-service-ca.crt
+                  items:
+                  - key: service-ca.crt
+                    path: ca.crt
+              - secret:
+                  name: operator-webhook-cert
+                  items:
+                  - key: tls.crt
+                    path: tls.crt
+                  - key: tls.key
+                    path: tls.key
+      {{- else }}
         - name: certs
           secret:
             secretName: operator-webhook-cert
