@@ -14,9 +14,9 @@ start: system-info create-k8s install-cluster-addons
 
 create-k8s:
   #!/usr/bin/env bash
-  kind create cluster --name aspic --config kind-cluster.yaml
+  k3d version
+  k3d cluster create aspic --config k3d-cluster.yaml --kubeconfig-update-default --kubeconfig-switch-context
   sleep 1
-  kubectl cluster-info --context kind-aspic
   echo "Waiting cluster beeing ready..."
   while [ $(kubectl get nodes -o json | jq -r '.items[].status.conditions[]? | select (.type == "Ready") | .status') != True ]
   do
@@ -64,11 +64,17 @@ run: install-crds
 
 load-images: buildx
   #!/usr/bin/env bash
-  kind --name aspic load docker-image {{operator_image}}
+  k3d image import {{operator_image}} --cluster aspic
 
 # install local helm chart with latest image built locally
 helm-install:
-  helm -n aspic-operator upgrade --install --create-namespace -f helm/values.yaml --set image.tag=latest aspic-operator ./helm
+  helm -n aspic-operator upgrade --install --create-namespace \
+    -f helm/values.yaml \
+    --set image.tag=latest \
+    --set api.enabled=True \
+    --set ingress.enabled=True \
+    --set ingress.hosts[0].host=aspic-operator.127.0.0.1.nip.io \
+    aspic-operator ./helm
 
 helm-uninstall:
   helm -n aspic-operator delete aspic-operator
@@ -90,7 +96,7 @@ buildx:
   DOCKER_BUILDKIT=1 docker build -t {{operator_image}} .
 
 destroy:
-  kind delete cluster --name aspic
+  k3d cluster delete aspic
 
 e2e:
   #!/usr/bin/env bash
@@ -109,6 +115,8 @@ e2e:
   done
   echo
   echo "TODO python E2E test"
+  # Example to call aspic-operator API
+  curl http://aspic-operator.127.0.0.1.nip.io/health
 
 testing:
   {{justfile_directory()}}/scripts/testing.sh

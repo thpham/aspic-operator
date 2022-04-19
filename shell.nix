@@ -7,7 +7,7 @@ let
     ]);
 
   basePackages = [
-    kind kubectl openshift kubernetes-helm kuttl
+    kube3d kubectl openshift kubernetes-helm kuttl
     just jq hadolint poetry python-with-my-packages
   ];
 
