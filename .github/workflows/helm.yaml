@@ -1,7 +1,14 @@
 name: Publish Helm Chart
 
 on:
+  pull_request:
+    # Only following types are handled by the action, but one can default to all as well
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'helm/**'
   push:
+    branches:
+      - main
     paths:
       - 'helm/**'
 
@@ -28,6 +35,9 @@ jobs:
         uses: azure/setup-helm@v1
         with:
           version: v3.8.1
+      - name: Update Helm dependencies
+        working-directory: aspic-operator/helm
+        run: helm dependency update
       - name: Package Helm chart
         working-directory: helm-chart-index/helm
         run: helm package ../../aspic-operator/helm

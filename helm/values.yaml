@@ -96,3 +96,28 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+mariadb:
+  fullnameOverride: mariadb
+  auth:
+    ## @param auth.rootPassword Password for the `root` user. Ignored if existing secret is provided.
+    ## ref: https://github.com/bitnami/bitnami-docker-mariadb#setting-the-root-password-on-first-run
+    ##
+    rootPassword: "ToorChangMe"
+    ## @param auth.database Name for a custom database to create
+    ## ref: https://github.com/bitnami/bitnami-docker-mariadb/blob/master/README.md#creating-a-database-on-first-run
+    ##
+    database: aspic-operator
+    ## @param auth.username Name for a custom user to create
+    ## ref: https://github.com/bitnami/bitnami-docker-mariadb/blob/master/README.md#creating-a-database-user-on-first-run
+    ##
+    username: "aspic"
+    ## @param auth.password Password for the new user. Ignored if existing secret is provided
+    ##
+    password: "changeme"
+
+  livenessProbe:
+    enabled: false
+
+  readinessProbe:
+    enabled: false

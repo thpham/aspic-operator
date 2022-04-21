@@ -68,16 +68,31 @@ load-images: buildx
 
 # install local helm chart with latest image built locally
 helm-install:
+  #!/usr/bin/env bash
+  cd helm
+  helm dependency update
   helm -n aspic-operator upgrade --install --create-namespace \
-    -f helm/values.yaml \
+    --dependency-update \
+    -f values.yaml \
     --set image.tag=latest \
     --set api.enabled=True \
     --set ingress.enabled=True \
     --set ingress.hosts[0].host=aspic-operator.127.0.0.1.nip.io \
-    aspic-operator ./helm
+    aspic-operator .
 
 helm-uninstall:
   helm -n aspic-operator delete aspic-operator
+
+monitoring:
+  helm repo add netdata https://netdata.github.io/helmchart/
+  helm -n netdata upgrade --install --create-namespace \
+    --set ingress.annotations."kubernetes\.io/ingress\.class"=traefik \
+    --set ingress.hosts[0]=netdata.127.0.0.1.nip.io \
+    --version 3.7.15 \
+    netdata netdata/netdata
+
+cilium:
+  open https://bit.ly/3L1vPUk
 
 remove-devs-additions:
   #!/usr/bin/env bash
