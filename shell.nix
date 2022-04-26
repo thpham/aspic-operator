@@ -20,7 +20,7 @@ let
     ]);
 
   basePackages = [
-    kube3d kubectl openshift kubernetes-helm kuttl
+    kube3d kubectl openshift kubernetes-helm skaffold kuttl
     just jq hadolint poetry python-with-my-packages
   ];
 
