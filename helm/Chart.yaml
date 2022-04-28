@@ -4,3 +4,13 @@ description: Kuberenetes Operator for automatic software delivery based on Updat
 type: application
 version: 0.1.0
 appVersion: "0.1.0"
+maintainers:
+- email: thomas.pham@ithings.ch
+  name: Thomas Pham
+dependencies:
+  - name: mariadb
+    repository: https://charts.bitnami.com/bitnami
+    version: ~9.3
+    condition: mariadb.enabled
+    tags:
+      - database
