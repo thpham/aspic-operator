@@ -12,7 +12,7 @@ on:
 
 jobs:
   linting_testing_publish:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: Lint code, run tests and push image
     steps:
       - uses: actions/checkout@v2.4.0

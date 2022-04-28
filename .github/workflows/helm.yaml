@@ -14,7 +14,7 @@ on:
 
 jobs:
   publish_helm_chart:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: Package and push Helm chart
     steps:
       - name: Checkout aspic-operator
