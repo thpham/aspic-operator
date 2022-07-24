@@ -38,7 +38,7 @@ create-microshift:
   docker cp microshift:/var/lib/microshift/resources/kubeadmin/kubeconfig $HOME/.kube/config
 
 install-cluster-apps:
-  kubectl apply -k bootstrap/apps/argocd
+  kubectl -n argocd apply -k bootstrap/apps/argocd
   kubectl -n argocd rollout status statefulset/argocd-application-controller
   kubectl -n argocd rollout status deployment/argocd-repo-server
   kubectl -n argocd apply -f bootstrap/default.yaml
