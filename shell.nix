@@ -9,7 +9,7 @@ let
   basePackages = [
     kube3d kubectl openshift kubernetes-helm kuttl
     just jq hadolint poetry python-with-my-packages
-    operator-sdk
+    operator-sdk argocd
   ];
 
   inputs = basePackages;

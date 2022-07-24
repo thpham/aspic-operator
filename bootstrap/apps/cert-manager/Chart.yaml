@@ -1,0 +1,8 @@
+apiVersion: v2
+name: cert-manager-aspic
+version: 0.0.1
+
+dependencies:
+- name: cert-manager
+  version: v1.7.2
+  repository: https://charts.jetstack.io

@@ -13,6 +13,7 @@ pykube-ng = "^22.1.0"
 fastapi = "^0.75.1"
 pydantic = "^1.9"
 uvicorn = {extras = ["standard"], version = "^0.17.6"}
+hera-workflows = "^3.6.1"
 
 [tool.poetry.dev-dependencies]
 

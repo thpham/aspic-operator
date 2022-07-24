@@ -8,7 +8,7 @@ default:
 system-info:
   @echo "This is an {{arch()}} machine running on {{os()}}."
 
-start: system-info create-k8s install-cluster-addons
+start: system-info create-k8s
   @echo "Middle steps..."
   just load-images remove-devs-additions helm-install
 
@@ -29,6 +29,7 @@ create-k8s:
     echo "Type/Node Name: ${node}"
     echo  
   done
+  just install-cluster-apps
 
 create-microshift:
   #!/usr/bin/env bash
@@ -36,15 +37,11 @@ create-microshift:
   docker run -d --rm --name microshift --privileged -p 6443:6443 -v microshift-data:/var/lib quay.io/microshift/microshift-aio:latest || true
   docker cp microshift:/var/lib/microshift/resources/kubeadmin/kubeconfig $HOME/.kube/config
 
-install-cluster-addons:
-  helm repo add jetstack https://charts.jetstack.io
-  helm repo update jetstack
-  helm upgrade --install \
-  cert-manager jetstack/cert-manager \
-  --namespace cert-manager \
-  --create-namespace \
-  --version v1.7.2 \
-  --set installCRDs=true
+install-cluster-apps:
+  kubectl apply -k bootstrap/apps/argocd
+  kubectl -n argocd rollout status statefulset/argocd-application-controller
+  kubectl -n argocd rollout status deployment/argocd-repo-server
+  kubectl -n argocd apply -f bootstrap/default.yaml
 
 install-olm:
   operator-sdk olm install

@@ -5,7 +5,7 @@ kind: Simple
 metadata:
   name: aspic
 servers: 1
-#agents: 2
+agents: 1
 kubeAPI:
   #host: "myhost.my.domain"
   hostIP: "0.0.0.0"
@@ -69,6 +69,12 @@ options:
       - arg: --tls-san=my.host.domain
         nodeFilters:
           - server:*
+      - arg: --disable=traefik
+        nodeFilters:
+          - server:*
+      #- arg: --no-deploy=traefik
+      #  nodeFilters:
+      #    - server:*
     #nodeLabels:
     #  - label: foo=bar # same as `--k3s-node-label 'foo=bar@agent:1'` -> this results in a Kubernetes node label
     #    nodeFilters:

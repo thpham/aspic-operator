@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: default
+  namespace: argocd
+spec:
+  generators:
+  - matrix:
+      generators:
+      - list:
+          elements:
+          - cluster: local
+            url: https://kubernetes.default.svc
+            values:
+              revision: feature/argo-cicd
+              project: default
+      - git:
+          repoURL: 'https://github.com/thpham/aspic-operator.git'
+          revision: feature/argo-cicd
+          directories:
+          - path: bootstrap/apps/*
+  template:
+    metadata:
+      name: '{{cluster}}-{{path.basename}}'
+      namespace: argocd
+      # enable finalizer if you want removal of ArgoCD application to cause a cascading delete to the underlying Kubernetes objects eg. deployments
+      #finalizers:
+      #  - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: '{{values.project}}'
+      source:
+        repoURL: 'https://github.com/thpham/aspic-operator.git'
+        path: '{{path}}'
+        targetRevision: '{{values.revision}}'
+      destination:
+        namespace: '{{path.basename}}'
+        server: '{{url}}'
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: false # safe by default
+        syncOptions:
+          - PrunePropagationPolicy=background
+          - CreateNamespace=true
+          - ApplyOutOfSyncOnly=false  # true is quicker but doesn't record history, cannot rollback, and hooks aren't run
