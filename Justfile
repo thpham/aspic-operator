@@ -12,7 +12,7 @@ start: system-info create-k8s
   @echo "Middle steps..."
   just load-images remove-devs-additions helm-install
 
-create-k8s:
+create-k8s: create-regcache
   #!/usr/bin/env bash
   k3d version
   k3d cluster create aspic --config k3d-cluster.yaml --kubeconfig-update-default --kubeconfig-switch-context
@@ -31,6 +31,32 @@ create-k8s:
   done
   just install-cluster-apps
 
+create-regcache:
+  #!/usr/bin/env bash
+  mkdir -p ~/.local/share/registries
+  k3d registry create docker-io \
+    --proxy-remote-url https://registry-1.docker.io \
+    -v ~/.local/share/registries/docker-io:/var/lib/registry || true
+  k3d registry create ghcr-io \
+    --proxy-remote-url https://ghcr.io \
+    -v ~/.local/share/registries/ghcr-io:/var/lib/registry || true
+  k3d registry create gcr-io \
+    --proxy-remote-url https://gcr.io \
+    -v ~/.local/share/registries/gcr-io:/var/lib/registry || true
+  k3d registry create quay-io \
+    --proxy-remote-url https://quay.io \
+    -v ~/.local/share/registries/quay-io:/var/lib/registry || true
+  k3d registry create k8s-io \
+    --proxy-remote-url https://registry.k8s.io \
+    -v ~/.local/share/registries/k8s-io:/var/lib/registry || true
+  k3d registry create k8s-gcr-io \
+    --proxy-remote-url https://k8s.gcr.io \
+    -v ~/.local/share/registries/k8s-gcr-io:/var/lib/registry || true
+
+delete-regcache:
+  #!/usr/bin/env bash
+  k3d registry del --all
+
 create-microshift:
   #!/usr/bin/env bash
   docker pull quay.io/microshift/microshift-aio:latest
@@ -38,10 +64,12 @@ create-microshift:
   docker cp microshift:/var/lib/microshift/resources/kubeadmin/kubeconfig $HOME/.kube/config
 
 install-cluster-apps:
-  kubectl apply -k bootstrap/apps/argocd
+  kubectl create ns argocd || true
+  kubectl -n argocd apply -k bootstrap/apps/argocd || true
   kubectl -n argocd rollout status statefulset/argocd-application-controller
   kubectl -n argocd rollout status deployment/argocd-repo-server
   kubectl -n argocd apply -f bootstrap/default.yaml
+  kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
 
 install-olm:
   operator-sdk olm install
@@ -107,7 +135,10 @@ alias b := buildx
 buildx:
   DOCKER_BUILDKIT=1 docker build -t {{operator_image}} .
 
-destroy:
+destroy: delete-regcache
+  #!/usr/bin/env bash
+  kubectl -n argocd delete -f bootstrap/default.yaml
+  sleep 5
   k3d cluster delete aspic
 
 e2e:

@@ -1,17 +1,17 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: argo-server
+  name: workflows
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
 spec:
   ingressClassName: nginx
   rules:
-  - host: localhost
+  - host: workflows.127.0.0.1.nip.io
     http:
       paths:
-      - path: /workflows
+      - path: /
         pathType: ImplementationSpecific
         backend:
           service: 
@@ -20,5 +20,5 @@ spec:
               name: web
   tls:
   - hosts:
-    - localhost
-    secretName: tls.localhost
+    - workflows.127.0.0.1.nip.io
+    secretName: workflows-tls

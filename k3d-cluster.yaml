@@ -30,22 +30,50 @@ env:
   - envVar: bar=baz,bob
     nodeFilters:
       - server:0
-#registries: # define how registries should be created or used
-  #create: # creates a default registry to be used with the cluster; same as `--registry-create registry.localhost`
-  #  name: registry.localhost
+registries:
+  #create:
+  #  name: docker-io
   #  host: "0.0.0.0"
   #  hostPort: "5000"
-  #use: [] # some other k3d-managed registry; same as `--registry-use 'k3d-myotherregistry:5000'`
-  #config: | # define contents of the `registries.yaml` file (or reference a file); same as `--registry-config /path/to/config.yaml`
-  #  mirrors:
-  #    "my.company.registry":
-  #      endpoint:
-  #        - http://my.company.registry:5000
+  #  proxy:
+  #    remoteURL: https://registry-1.docker.io
+  #  volumes:
+  #    - /tmp/reg:/var/lib/registry # persist data locally in /tmp/reg
+  use: [
+    "k3d-docker-io:5000",
+    "k3d-ghcr-io:5000",
+    "k3d-gcr-io:5000",
+    "k3d-quay-io:5000",
+    "k3d-k8s-io:5000",
+    "k3d-k8s-gcr-io:5000"
+  ] # some other k3d-managed registry; same as `--registry-use 'k3d-myotherregistry:5000'`
+  config: | # define contents of the `registries.yaml` file (or reference a file); same as `--registry-config /path/to/config.yaml`
+    mirrors:
+      "docker.io":
+        endpoint:
+          - http://k3d-docker-io:5000
+      "ghcr.io":
+        endpoint:
+          - http://k3d-ghcr-io:5000
+      "gcr.io":
+        endpoint:
+          - http://k3d-gcr-io:5000
+      "quay.io":
+        endpoint:
+          - http://k3d-quay-io:5000
+      "registry.k8s.io":
+        endpoint:
+          - http://k3d-k8s-io:5000
+      "k8s.gcr.io":
+        endpoint:
+          - http://k3d-k8s-gcr-io:5000
   #  configs:
   #    "ghcr.io":
   #      auth:
   #        username: <github_username>
   #        password: <https://bit.ly/3wepOgD>
+  #      tls:
+  #        ca_file: "/etc/ssl/certs/acme_Root_CA.pem"
 #hostAliases: # /etc/hosts style entries to be injected into /etc/hosts in the node containers and in the NodeHosts section in CoreDNS
 #  - ip: 1.2.3.4
 #    hostnames: 
