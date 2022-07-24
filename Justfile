@@ -38,13 +38,28 @@ create-microshift:
 
 install-cluster-addons:
   helm repo add jetstack https://charts.jetstack.io
-  helm repo update
+  helm repo update jetstack
   helm upgrade --install \
   cert-manager jetstack/cert-manager \
   --namespace cert-manager \
   --create-namespace \
   --version v1.7.2 \
   --set installCRDs=true
+
+install-olm:
+  operator-sdk olm install
+
+install-olm-argocd:
+  kubectl create namespace argocd
+  kubectl create -n olm -f olm/catalog_source.yaml
+  kubectl get catalogsources -n olm
+  kubectl get pods -n olm -l olm.catalogSource=argocd-catalog
+  kubectl create -n argocd -f olm/operator_group.yaml
+  kubectl get operatorgroups -n argocd
+  kubectl create -n argocd -f olm/subscription.yaml
+  kubectl get subscriptions -n argocd
+  kubectl get installplans -n argocd
+  kubectl get pods -n argocd
 
 install-crds:
   kubectl apply -f helm//templates/crd-*.yaml

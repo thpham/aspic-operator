@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ArgoCD
+metadata:
+  name: aspic
+  namespace: argocd
+  labels:
+    stage: dev
+spec:
+  server:
+    grpc:
+      ingress:
+        enabled: true
+    ingress:
+      enabled: true
+    insecure: true
+    autoscale:
+      enabled: true
+  rbac:
+    defaultPolicy: 'role:readonly'
+    policy: |
+      g, system:cluster-admins, role:admin
+    scopes: '[groups]'
+
