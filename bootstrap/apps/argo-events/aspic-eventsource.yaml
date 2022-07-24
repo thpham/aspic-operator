@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: aspic
+spec:
+  template:
+    serviceAccountName: aspic # assign a service account with `get`, `list` and `watch` permissions on the resource being watched.
+  resource:
+    new-updatestream:
+      # namespace to listen events within
+      namespace: aspic-operator
+      # resource group
+      group: config.aspic.io
+      # resource version
+      version: v1beta1
+      # resource kind
+      resource: update-streams
+      # type of events
+      # possible values are ADD, DELETE, UPDATE
+      # Optional
+      eventTypes:
+        - ADD
+      # optional.
+      filter:
+        # This indicates only watch the events happened after the service start time.
+        afterStart: true

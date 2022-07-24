@@ -5,3 +5,10 @@ namespace: argo-events
 bases:
 - github.com/argoproj/argo-events/manifests/cluster-install?ref=stable
 - github.com/argoproj/argo-events/manifests/extensions/validating-webhook?ref=stable
+
+resources:
+- eventbus.yaml
+- aspic-rbac.yaml
+- aspic-eventsource.yaml
+- aspic-us-sensor.yaml
+- workflow-rbac.yaml

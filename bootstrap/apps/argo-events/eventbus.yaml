@@ -1,0 +1,13 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventBus
+metadata:
+  name: default
+spec:
+  nats:
+    native:
+      #replicas: 3 # optional, defaults to 3, and requires minimal 3
+      auth: token # optional, default to none
+      persistence: # optional
+        storageClassName: nfs
+        accessMode: ReadWriteOnce
+        volumeSize: 100Mi

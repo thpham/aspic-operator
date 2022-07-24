@@ -93,7 +93,7 @@ helm-uninstall:
 
 remove-devs-additions:
   #!/usr/bin/env bash
-  kubectl delete -f helm//templates/crd-*.yaml || true
+  kubectl delete -f helm/templates/crd-*.yaml || true
   kubectl delete MutatingWebhookConfiguration aspic-operator || true
   kubectl delete ValidatingWebhookConfiguration aspic-operator || true
 
