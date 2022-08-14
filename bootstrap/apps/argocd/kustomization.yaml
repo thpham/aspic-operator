@@ -2,25 +2,25 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 bases:
-- github.com/argoproj/argo-cd/manifests/cluster-install?ref=v2.4.7
-- github.com/argoproj/argo-workflows/manifests/cluster-install?ref=v3.3.8
+- github.com/argoproj/argo-cd/manifests/cluster-install?ref=v2.4.9
+- github.com/argoproj/argo-workflows/manifests/cluster-install?ref=v3.4.0-rc1
 - github.com/argoproj/argo-events/manifests/cluster-install?ref=v1.7.1
 - github.com/argoproj/argo-events/manifests/extensions/validating-webhook?ref=v1.7.1
 - github.com/argoproj/argo-rollouts/manifests/cluster-install?ref=v1.2.2
 - github.com/argoproj/argo-rollouts/manifests/notifications?ref=v1.2.2
 - github.com/argoproj/argo-rollouts/manifests/dashboard-install?ref=v1.2.2
 
+components:
+# extensions controller component
+- github.com/argoproj-labs/argocd-extensions/manifests?ref=v0.1.0
+
 resources:
 - namespace.yaml
 - argocd-ingress.yaml
 - rollouts-ingress.yaml
 - workflows-ingress.yaml
-- eventbus.yaml
-- aspic-rbac.yaml
-- aspic-eventsource.yaml
-- aspic-us-sensor.yaml
-- workflows-rbac.yaml
-#- workflows-rolebinding.yaml
+- https://raw.githubusercontent.com/argoproj-labs/rollout-extension/v0.1.0/manifests/install.yaml
+
 
 patches:
 - path: argocd-cm.yaml
@@ -39,6 +39,22 @@ patches:
     name: argo-server
 
 - target:
+    kind: Deployment
+    name: argo-server
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/image
+      value: quay.io/argoproj/argocli:v3.4.0-rc1
+
+- target:
+    kind: Deployment
+    name: workflow-controller
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/image
+      value: quay.io/argoproj/workflow-controller:v3.4.0-rc1
+
+- target:
     kind: ClusterRoleBinding|RoleBinding
   patch: |-
     - op: replace
@@ -50,6 +66,14 @@ patches:
   patch: |-
     - op: remove
       path: /metadata/namespace
+
+- target:
+    kind: Deployment
+    name: argo-rollouts
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/image
+      value: quay.io/argoproj/argo-rollouts:v1.2.2
 
 - target:
     kind: Deployment

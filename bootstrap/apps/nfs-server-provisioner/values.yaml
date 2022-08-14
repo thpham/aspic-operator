@@ -39,7 +39,7 @@ nfs-server-provisioner:
     externalIPs: []
 
   persistence:
-    enabled: false
+    enabled: true
 
     ## Persistent Volume Storage Class
     ## If defined, storageClassName: <storageClass>
@@ -51,7 +51,7 @@ nfs-server-provisioner:
     # storageClass: "-"
 
     accessMode: ReadWriteOnce
-    size: 1Gi
+    size: 5Gi
 
   ## For creating the StorageClass automatically:
   storageClass:

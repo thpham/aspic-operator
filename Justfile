@@ -68,7 +68,7 @@ install-cluster-apps:
   kubectl -n argocd apply -k bootstrap/apps/argocd || true
   kubectl -n argocd rollout status statefulset/argocd-application-controller
   kubectl -n argocd rollout status deployment/argocd-repo-server
-  kubectl -n argocd apply -f bootstrap/default.yaml
+  #kubectl -n argocd apply -f bootstrap/default.yaml
   kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
 
 install-olm:

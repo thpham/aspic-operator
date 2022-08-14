@@ -31,14 +31,10 @@ env:
     nodeFilters:
       - server:0
 registries:
-  #create:
-  #  name: docker-io
-  #  host: "0.0.0.0"
-  #  hostPort: "5000"
-  #  proxy:
-  #    remoteURL: https://registry-1.docker.io
-  #  volumes:
-  #    - /tmp/reg:/var/lib/registry # persist data locally in /tmp/reg
+  create:
+    name: k3d-registry.localhost
+    host: "0.0.0.0"
+    hostPort: "5000"
   use: [
     "k3d-docker-io:5000",
     "k3d-ghcr-io:5000",
@@ -49,6 +45,9 @@ registries:
   ] # some other k3d-managed registry; same as `--registry-use 'k3d-myotherregistry:5000'`
   config: | # define contents of the `registries.yaml` file (or reference a file); same as `--registry-config /path/to/config.yaml`
     mirrors:
+      "k3d-registry.k3d.localhost":
+        endpoint:
+          - http://k3d-registry.localhost:5000
       "docker.io":
         endpoint:
           - http://k3d-docker-io:5000

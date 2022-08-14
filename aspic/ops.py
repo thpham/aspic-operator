@@ -84,7 +84,7 @@ def create_pod(**kwargs):
 @kopf.on.create("config.aspic.io", "v1beta1", "update-streams")
 def create_update_stream(logger, **kwargs):
   logger.info("Create UpdateStream...")
-  create_pod(**kwargs)
+  #create_pod(**kwargs)
 
 @kopf.on.delete("config.aspic.io", "v1beta1", "update-streams")
 def delete_update_stream(logger, **kwargs):

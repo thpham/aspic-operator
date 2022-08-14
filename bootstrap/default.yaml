@@ -12,11 +12,11 @@ spec:
           - cluster: local
             url: https://kubernetes.default.svc
             values:
-              revision: feature/argo-cicd
+              revision: feature/argo-cicd-2
               project: default
       - git:
           repoURL: 'https://github.com/thpham/aspic-operator.git'
-          revision: feature/argo-cicd
+          revision: feature/argo-cicd-2
           directories:
           - path: bootstrap/apps/*
   template:

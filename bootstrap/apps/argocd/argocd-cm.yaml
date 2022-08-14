@@ -1,7 +1,8 @@
 apiVersion: v1
 data:
-  ui.bannercontent: "Security Goose says: This is a demo installation for the aspic-operator. Not for production use. Honk!"
+  ui.bannercontent: "This is a demo installation for the aspic-operator. Not for production use!"
   ui.bannerpermanent: "true"
+  exec.enabled: "true"
 kind: ConfigMap
 metadata:
   labels:

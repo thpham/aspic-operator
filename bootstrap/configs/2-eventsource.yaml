@@ -4,7 +4,7 @@ metadata:
   name: aspic
 spec:
   template:
-    serviceAccountName: aspic # assign a service account with `get`, `list` and `watch` permissions on the resource being watched.
+    serviceAccountName: aspic-watcher # assign a service account with `get`, `list` and `watch` permissions on the resource being watched.
   resource:
     new-updatestream:
       # namespace to listen events within

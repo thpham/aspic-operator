@@ -1,3 +1,38 @@
+#eventsource
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: aspic-watcher
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aspic-watcher
+rules:
+  - apiGroups:
+      - config.aspic.io
+    verbs:
+      - get
+      - list
+      - watch
+    resources:
+      - update-streams
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: aspic-watcher-clusterrole-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: aspic-watcher
+subjects:
+  - kind: ServiceAccount
+    name: aspic-watcher
+    namespace: aspic-operator
+---
+#sensor
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -30,11 +65,29 @@ subjects:
   - kind: ServiceAccount
     name: operate-workflow-sa
 ---
+# workflow
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: executor
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: workflow-role
+  name: executor-role
+  annotations:
+    workflows.argoproj.io/description: |
+      Recommended minimum permissions for the `docker` executor.
+      This executor is superseded by  the `emmisary` executor, so we do not recommend you use it anymore.
+    workflows.argoproj.io/version: "< 3.4.0"
 rules:
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - workflowtaskresults
+    verbs:
+      - create
+      - patch
   # pod get/watch is used to identify the container IDs of the current pod
   # pod patch is used to annotate the step's outputs back to controller (e.g. artifact location)
   - apiGroups:
@@ -57,11 +110,11 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: workflow-role-binding
+  name: executor-role-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: workflow-role
+  name: executor-role
 subjects:
   - kind: ServiceAccount
-    name: default
+    name: executor

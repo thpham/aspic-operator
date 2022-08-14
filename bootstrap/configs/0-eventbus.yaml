@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventBus
+metadata:
+  name: default
+spec:
+  jetstream:
+    version: 2.8.2-alpine
+    replicas: 3
+    persistence:
+        #storageClassName: nfs
+        accessMode: ReadWriteOnce
+        volumeSize: 100Mi
+    streamConfig: |
+      maxMsgs: 5000
+      maxAge: 24h
+      maxBytes: -1
+      replicas: 3
+      duplicates: 300s
+    settings: |
+      # https://docs.nats.io/running-a-nats-service/configuration#jetstream
+      # e.g. 1G. -1 means no limit, up to 75% of available memory
+      max_memory_store: -1
+      # e.g. 2G. -1 means no limit, Up to 1TB if available
+      max_file_store: 100MB
+    startArgs: 
+      - "-D"

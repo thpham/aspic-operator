@@ -60,3 +60,6 @@ helm -n aspic-operator upgrade --install --create-namespace -f <your_values.yaml
 ```
 
 The docker image produce by the CI/CD is published on [Docker Hub](https://hub.docker.com/r/tpham/aspic-operator/tags).
+
+
+test workflow: CHANGEMEPLEASE

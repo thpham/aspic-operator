@@ -19,9 +19,9 @@ data:
     spec:
       # Time out after 1h
       activeDeadlineSeconds: 3600
-      # Delete (archive) workflows after 48h
+      # Delete (archive) workflows after 60s
       ttlStrategy:
-        secondsAfterCompletion: 172800
+        secondsAfterCompletion: 60
       volumeClaimGC:
         strategy: OnWorkflowCompletion
       retryStrategy:
