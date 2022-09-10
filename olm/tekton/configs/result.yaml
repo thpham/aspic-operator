@@ -1,0 +1,6 @@
+apiVersion: operator.tekton.dev/v1alpha1
+kind: TektonResult
+metadata:
+  name: result
+spec:
+  targetNamespace: tekton-pipelines

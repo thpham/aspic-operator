@@ -122,6 +122,31 @@ install-olm-ocm:
   done
   kubectl -n operators get csv
 
+install-olm-tekton:
+  #!/usr/bin/env bash
+  kubectl create -f olm/tekton/subscription.yaml || true
+  kubectl -n operators get subscriptions
+  while [[ -z $(kubectl -n operators wait deployment tekton-operator --for condition=Available=True --timeout=90s 2>/dev/null) ]]; do
+    echo "still waiting for tekton-operator..."
+    sleep 2
+  done
+  kubectl create namespace tekton-pipelines || true
+  kubectl -n tekton-pipelines create secret generic tekton-results-postgres --from-literal=POSTGRES_USER=postgres --from-literal=POSTGRES_PASSWORD=$(openssl rand -base64 20)
+  # Generate new self-signed cert.
+  openssl req -x509 \
+    -newkey rsa:4096 \
+    -keyout /tmp/tekton-result-key.pem \
+    -out /tmp/tekton-result-cert.pem \
+    -days 365 \
+    -nodes \
+    -subj "/CN=tekton-results-api-service.tekton-pipelines.svc.cluster.local" \
+    -addext "subjectAltName = DNS:tekton-results-api-service.tekton-pipelines.svc.cluster.local"
+  # Create new TLS Secret from cert.
+  kubectl -n tekton-pipelines create secret tls tekton-results-tls \
+    --cert=/tmp/tekton-result-cert.pem \
+    --key=/tmp/tekton-result-key.pem
+  kubectl -n tekton-pipelines apply -f olm/tekton/configs/
+
 install-crds:
   kubectl apply -f helm//templates/crd-*.yaml
 
