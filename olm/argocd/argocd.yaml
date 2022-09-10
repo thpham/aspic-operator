@@ -1,11 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ArgoCD
 metadata:
-  name: aspic
+  name: argocd
   namespace: argocd
   labels:
     stage: dev
 spec:
+  disableAdmin: false
+  notifications:
+    enabled: true
+  grafana:
+    enabled: false
+  prometheus:
+    enabled: false
+  applicationSet: {}
   server:
     grpc:
       ingress:
@@ -15,6 +23,11 @@ spec:
     insecure: true
     autoscale:
       enabled: true
+  controller:
+    processors:
+      operation: 10
+      status: 20
+    resources: {}
   rbac:
     defaultPolicy: 'role:readonly'
     policy: |

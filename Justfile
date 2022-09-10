@@ -75,16 +75,52 @@ install-olm:
   operator-sdk olm install
 
 install-olm-argocd:
-  kubectl create namespace argocd
-  kubectl create -n olm -f olm/catalog_source.yaml
-  kubectl get catalogsources -n olm
-  kubectl get pods -n olm -l olm.catalogSource=argocd-catalog
-  kubectl create -n argocd -f olm/operator_group.yaml
-  kubectl get operatorgroups -n argocd
-  kubectl create -n argocd -f olm/subscription.yaml
-  kubectl get subscriptions -n argocd
-  kubectl get installplans -n argocd
-  kubectl get pods -n argocd
+  #!/usr/bin/env bash
+  kubectl create -f olm/argocd/subscription.yaml || true
+  kubectl -n operators get subscriptions
+  while [[ -z $(kubectl -n operators wait deployment argocd-operator-controller-manager --for condition=Available=True --timeout=90s 2>/dev/null) ]]; do
+    echo "still waiting for argocd-operator-controller-manager..."
+    sleep 2
+  done
+  kubectl create namespace argocd || true
+  kubectl create -f olm/argocd/argocd.yaml || true
+  while [[ -z $(kubectl -n argocd wait deployment argocd-server --for condition=Available=True --timeout=90s 2>/dev/null) ]]; do
+    echo "still waiting for argocd-server..."
+    sleep 2
+  done
+  kubectl -n operators get csv
+
+install-olm-hive:
+  #!/usr/bin/env bash
+  kubectl create -f olm/hive/subscription.yaml || true
+  kubectl -n operators get subscriptions
+  while [[ -z $(kubectl -n operators wait deployment hive-operator --for condition=Available=True --timeout=90s 2>/dev/null) ]]; do
+    echo "still waiting for hive-operator..."
+    sleep 2
+  done
+  kubectl create namespace hive || true
+  kubectl create -f olm/hive/hive_config.yaml || true
+  while [[ -z $(kubectl -n hive wait deployment hive-controllers --for condition=Available=True --timeout=90s 2>/dev/null) ]]; do
+    echo "still waiting for hive-controllers..."
+    sleep 2
+  done
+  kubectl -n operators get csv
+
+install-olm-ocm:
+  #!/usr/bin/env bash
+  kubectl create -f olm/ocm/subscription.yaml || true
+  kubectl -n operators get subscriptions
+  while [[ -z $(kubectl -n operators wait deployment cluster-manager --for condition=Available=True --timeout=90s 2>/dev/null) ]]; do
+    echo "still waiting for cluster-manager..."
+    sleep 2
+  done
+  kubectl create namespace open-cluster-management-hub || true
+  kubectl create -f olm/ocm/cluster_manager.yaml || true
+  while [[ -z $(kubectl -n open-cluster-management-hub wait deployment cluster-manager-registration-controller --for condition=Available=True --timeout=90s 2>/dev/null) ]]; do
+    echo "still waiting for cluster-manager-registration-controller..."
+    sleep 2
+  done
+  kubectl -n operators get csv
 
 install-crds:
   kubectl apply -f helm//templates/crd-*.yaml

@@ -1,0 +1,10 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: hive-operator
+  namespace: operators
+spec:
+  channel: ocm-2.4
+  name: hive-operator
+  source: operatorhubio-catalog
+  sourceNamespace: olm
