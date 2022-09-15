@@ -11,14 +11,13 @@ kubeAPI:
   hostIP: "0.0.0.0"
   hostPort: "6443" # Kubernetes API via localhost:6443
 image: rancher/k3s:v1.23.5-k3s1
-#network: aspic-net # same as `--network aspic-net`
+network: k3d # same as `--network bridge`
 #subnet: "172.28.0.0/16" # same as `--subnet 172.28.0.0/16`
 token: superSecretToken # same as `--token superSecretToken`
 volumes:
-  - volume: /tmp:/tmp/somepath
+  - volume: $REGISTRY_DIR/certs/ca.crt:/etc/ssl/certs/registry-proxy-ca.pem
     nodeFilters:
-      - server:0
-      #- agent:*
+      - all
 ports:
   - port: 80:80  # http via localhost:80
     nodeFilters:
@@ -27,45 +26,26 @@ ports:
     nodeFilters:
       - loadbalancer
 env:
-  - envVar: bar=baz,bob
+  - envVar: HTTP_PROXY=http://$PROXY_HOST:$PROXY_PORT
     nodeFilters:
-      - server:0
+      - all
+  - envVar: HTTPS_PROXY=http://$PROXY_HOST:$PROXY_PORT
+    nodeFilters:
+      - all
+  - envVar: NO_PROXY='$NOPROXY_LIST'
+    nodeFilters:
+      - all
 registries:
   create:
     name: k3d-registry.localhost
     host: "0.0.0.0"
     hostPort: "5000"
-  use: [
-    "k3d-docker-io:5000",
-    "k3d-ghcr-io:5000",
-    "k3d-gcr-io:5000",
-    "k3d-quay-io:5000",
-    "k3d-k8s-io:5000",
-    "k3d-k8s-gcr-io:5000"
-  ] # some other k3d-managed registry; same as `--registry-use 'k3d-myotherregistry:5000'`
+  use: [] # some other k3d-managed registry; same as `--registry-use 'k3d-myotherregistry:5000'`
   config: | # define contents of the `registries.yaml` file (or reference a file); same as `--registry-config /path/to/config.yaml`
     mirrors:
       "k3d-registry.k3d.localhost":
         endpoint:
           - http://k3d-registry.localhost:5000
-      "docker.io":
-        endpoint:
-          - http://k3d-docker-io:5000
-      "ghcr.io":
-        endpoint:
-          - http://k3d-ghcr-io:5000
-      "gcr.io":
-        endpoint:
-          - http://k3d-gcr-io:5000
-      "quay.io":
-        endpoint:
-          - http://k3d-quay-io:5000
-      "registry.k8s.io":
-        endpoint:
-          - http://k3d-k8s-io:5000
-      "k8s.gcr.io":
-        endpoint:
-          - http://k3d-k8s-gcr-io:5000
   #  configs:
   #    "ghcr.io":
   #      auth:

@@ -1,4 +1,5 @@
 home_dir         := env_var('HOME')
+registry_dir     := home_dir+"/.local/share/registry-proxy"
 operator_version := "latest"
 operator_image   := "tpham/aspic-operator"+":"+operator_version
 
@@ -12,8 +13,12 @@ start: system-info create-k8s
   @echo "Middle steps..."
   just load-images remove-devs-additions helm-install
 
-create-k8s: create-regcache
+create-k8s:
   #!/usr/bin/env bash
+  export PROXY_HOST=registry-proxy
+  export PROXY_PORT=3128
+  export NOPROXY_LIST="localhost,127.0.0.1,0.0.0.0,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.local,.svc"
+  export REGISTRY_DIR={{registry_dir}}
   k3d version
   k3d cluster create aspic --config k3d-cluster.yaml --kubeconfig-update-default --kubeconfig-switch-context
   sleep 1
@@ -29,33 +34,24 @@ create-k8s: create-regcache
     echo "Type/Node Name: ${node}"
     echo  
   done
-  just install-cluster-apps
+  just create-regcache
+  #just install-cluster-apps
 
 create-regcache:
   #!/usr/bin/env bash
-  mkdir -p ~/.local/share/registries
-  k3d registry create docker-io \
-    --proxy-remote-url https://registry-1.docker.io \
-    -v ~/.local/share/registries/docker-io:/var/lib/registry || true
-  k3d registry create ghcr-io \
-    --proxy-remote-url https://ghcr.io \
-    -v ~/.local/share/registries/ghcr-io:/var/lib/registry || true
-  k3d registry create gcr-io \
-    --proxy-remote-url https://gcr.io \
-    -v ~/.local/share/registries/gcr-io:/var/lib/registry || true
-  k3d registry create quay-io \
-    --proxy-remote-url https://quay.io \
-    -v ~/.local/share/registries/quay-io:/var/lib/registry || true
-  k3d registry create k8s-io \
-    --proxy-remote-url https://registry.k8s.io \
-    -v ~/.local/share/registries/k8s-io:/var/lib/registry || true
-  k3d registry create k8s-gcr-io \
-    --proxy-remote-url https://k8s.gcr.io \
-    -v ~/.local/share/registries/k8s-gcr-io:/var/lib/registry || true
+  mkdir -p {{registry_dir}}/{mirror_cache,certs}
+  docker run --rm -d --name registry-proxy \
+    --network k3d \
+    -p 0.0.0.0:3128:3128 -e ENABLE_MANIFEST_CACHE=true \
+    -e REGISTRIES="quay.io ghcr.io gcr.io k8s.gcr.io registry.k8s.io registry.ithings.ch" \
+    -e AUTH_REGISTRIES="registry.ithings.ch:username:password" \
+    -v {{registry_dir}}/mirror_cache:/docker_mirror_cache \
+    -v {{registry_dir}}/certs:/ca \
+    rpardini/docker-registry-proxy:0.6.4 || true
 
 delete-regcache:
   #!/usr/bin/env bash
-  k3d registry del --all
+  docker stop registry-proxy
 
 create-microshift:
   #!/usr/bin/env bash
@@ -99,6 +95,9 @@ install-olm-hive:
     sleep 2
   done
   kubectl create namespace hive || true
+  kubectl -n hive apply -f olm/hive/configs/
+  oc -n hive create secret generic global-pull-secret --type=kubernetes.io/dockerconfigjson --from-file=.dockerconfigjson=./olm/hive/pull-secret.json || true
+  oc -n hive create secret generic okd-install-config --from-file=install-config.yaml=./olm/hive/okd-sno-install-config.yaml || true
   kubectl create -f olm/hive/hive_config.yaml || true
   while [[ -z $(kubectl -n hive wait deployment hive-controllers --for condition=Available=True --timeout=90s 2>/dev/null) ]]; do
     echo "still waiting for hive-controllers..."
